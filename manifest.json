@@ -6,22 +6,30 @@
   "permissions": ["scripting", "activeTab", "clipboardWrite"],
   "host_permissions": ["https://docs.google.com/*"],
   "icons": {
-    "16": "icons/icon16.png",
-    "32": "icons/icon32.png",
-    "48": "icons/icon48.png",
-    "96": "icons/icon96.png",
-    "128": "icons/icon128.png"
+    "16": "src/icons/icon16.png",
+    "32": "src/icons/icon32.png",
+    "48": "src/icons/icon48.png",
+    "96": "src/icons/icon96.png",
+    "128": "src/icons/icon128.png"
   },
   "action": {
     "default_title": "Copy Status Bar Stats for Google Sheets",
     "default_icon": {
-      "16": "icons/icon16.png",
-      "24": "icons/icon24.png",
-      "32": "icons/icon32.png"
+      "16": "src/icons/icon16.png",
+      "24": "src/icons/icon24.png",
+      "32": "src/icons/icon32.png"
     }
   },
   "background": {
-    "scripts": ["background.js"]
-  }
+    "scripts": ["src/background.js"]
+  },
+  "browser_specific_settings": {
+        "gecko": {
+            "id": "Copy-Status-Bar-Stats@ramin-hossaini.com",
+            "data_collection_permissions": {
+							"required": ["none"]
+						}
+        }
+    }
 }
 
