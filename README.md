@@ -8,7 +8,7 @@ Click to copy **Sum / Avg / Count / Min / Max** from the bottom-right status bar
 - No data collection
 
 ## Install
-- **Firefox**: [AMO link goes here]
+- **Firefox**: https://addons.mozilla.org/en-US/firefox/addon/copy-status-bar-for-gsheets/
 
 ## Usage
 1. Select cells in Google Sheets so the status bar shows stats
