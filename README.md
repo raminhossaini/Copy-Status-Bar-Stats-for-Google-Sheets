@@ -17,3 +17,8 @@ Click to copy **Sum / Avg / Count / Min / Max** from the bottom-right status bar
 
 ## Permissions
 - `activeTab`, `scripting`, `clipboardWrite`, and host permission for `docs.google.com/*`
+
+## Privacy
+
+This extension does not collect, transmit, or store any personal data.
+Not affiliated with or endorsed by Google.
