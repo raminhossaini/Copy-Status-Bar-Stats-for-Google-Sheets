@@ -1,11 +1,12 @@
 // background.js (MV3, Firefox)
 // Click the toolbar button to copy a Sheets stat (Sum / Avg / Count / Min / Max).
 // If multiple stats are visible, an in-page chooser appears so you can pick which one to copy.
+const VERSION = "1.2.1"; console.log("[CopySheetsStat] Loaded", VERSION);
 
 browser.action.onClicked.addListener(async (tab) => {
   if (!tab?.id) return;
   if (!/^https:\/\/docs\.google\.com\/spreadsheets\//.test(tab.url || "")) {
-    console.warn("[CopySheetsStat] Not a Google Sheets tab.");
+    console.warn("[CopySheetsStat] Not a Sheets tab:", tab.url);
     return;
   }
 
@@ -13,19 +14,66 @@ browser.action.onClicked.addListener(async (tab) => {
     const results = await browser.scripting.executeScript({
       target: { tabId: tab.id, allFrames: true },
       func: pageCopySheetsStatToClipboard,
-      args: ["auto"] // "sum"|"avg"|"count"|"min"|"max"|"auto"
+      args: ["auto"]  // or "sum" | "avg" | "count" | "min" | "max"
     });
 
-    const winner = results?.find(r => r?.result?.ok)?.result;
-    if (winner?.ok) {
-      console.log(`[CopySheetsStat] ${winner.message || "Done"} (frame: ${winner.frame})`);
-    } else {
-      console.warn("[CopySheetsStat] Could not copy. Details:", results?.map(r => r?.result));
+    if (!results || results.length === 0) {
+      console.warn("[CopySheetsStat] executeScript returned no results.");
+      await browser.scripting.executeScript({
+        target: { tabId: tab.id },
+        func: (msg) => {
+          const d = document.createElement("div");
+          d.textContent = msg;
+          Object.assign(d.style, {
+            position: "fixed", right: "12px", bottom: "12px",
+            padding: "8px 10px", background: "rgba(0,0,0,0.85)",
+            color: "#fff", fontSize: "12px", borderRadius: "6px",
+            zIndex: 2147483647
+          });
+          document.body.appendChild(d);
+          setTimeout(() => d.remove(), 1500);
+        },
+        args: ["Couldn’t inject into this page (no frames). Try reloading the Sheet."]
+      });
+      return;
     }
+
+    const perFrame = results.map(r => r?.result ?? r);
+    console.log("[CopySheetsStat] per-frame results:", perFrame);
+
+    const winner = perFrame.find(x => x && x.ok);
+    if (winner) {
+      console.log(`[CopySheetsStat] Copied OK from frame: ${winner.frame}`);
+      return;
+    }
+
+    // If we got here, injection ran but didn’t find stats. The page code already toasts,
+    // but log again here for clarity.
+    console.warn("[CopySheetsStat] No frame succeeded. Last results above.");
   } catch (e) {
-    console.error("[CopySheetsStat] executeScript failed:", e);
+    console.error("[CopySheetsStat] executeScript error:", e);
+    // Try to surface it in-page too
+    try {
+      await browser.scripting.executeScript({
+        target: { tabId: tab.id },
+        func: (msg) => {
+          const d = document.createElement("div");
+          d.textContent = msg;
+          Object.assign(d.style, {
+            position: "fixed", right: "12px", bottom: "12px",
+            padding: "8px 10px", background: "rgba(160,0,0,0.9)",
+            color: "#fff", fontSize: "12px", borderRadius: "6px",
+            zIndex: 2147483647
+          });
+          document.body.appendChild(d);
+          setTimeout(() => d.remove(), 1800);
+        },
+        args: ["Extension error: see Service Worker console for details."]
+      });
+    } catch {}
   }
 });
+
 
 // ---- injected into the page/frame ----
 async function pageCopySheetsStatToClipboard(requested = "auto") {
