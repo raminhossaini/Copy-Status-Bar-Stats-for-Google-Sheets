@@ -1,7 +1,9 @@
+import "./vendor/browser-polyfill.js";
 // background.js (MV3, Firefox)
 // Click the toolbar button to copy a Sheets stat (Sum / Avg / Count / Min / Max).
 // If multiple stats are visible, an in-page chooser appears so you can pick which one to copy.
-const VERSION = "1.2.1"; console.log("[CopySheetsStat] Loaded", VERSION);
+
+const VERSION = "1.2.2"; console.log("[CopySheetsStat] Loaded", VERSION);
 
 browser.action.onClicked.addListener(async (tab) => {
   if (!tab?.id) return;
